@@ -23,6 +23,7 @@ module.exports.getOneMsg = (query, callback) => {
 };
 //Recherche a travailler!!!!
 module.exports.rechercheMsg = (query, callback) => {
+    //La recherche ne peut recevoir d'espace dans la query
     let filtre = { description:{$regex:query }};
     Messages.find(filtre, callback).sort({date:-1}).limit(250);
 };

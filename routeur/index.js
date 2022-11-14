@@ -35,6 +35,8 @@ router.get("/api/messages", (requete, reponse) => {
 
 router.get("/api/messages/recherche/:texte", (requete, reponse) => {
   //requete pour recherche a mongoDB pour les messages
+  //integrez regex pour recherche
+  //ne pas mettre d'espace dans la recherche
 Messages.rechercheMsg(requete.params.texte,(err, msg) => {
   if (err) throw err;
   reponse.json(msg);
