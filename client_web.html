@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DORR_SERTP1</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
@@ -33,91 +35,153 @@
         tr{
             background-color: #dddddd;
         }
-
+        div{
+            margin-left: 40px;
+        }
         
     </style>
 </head>
 <body>
     <h1 class="titre">Canal de discussion du TP1</h1>
-    <button class="button1">Ajouter une discussion</button>
-    <table class="table table-light">
-        <thead class="thead-light">
-            <tr>
-                <th>Discussion</th>
-                <th>Lancée par</th>
-                <th>Derniere reponse</th>
-                <th>Réponses</th>
-              </tr>
-        </thead>
-        <tbody class="tableBody">
-
-        </tbody>
-    </table>
-
+    
+    <button class="button1" onclick=deroule() ondblclick=roule()>Ajouter une discussion</button>
+    <br>
+    <br>
+    <div class="menuMSG"> 
+        <form action="client_web.html">
+        <label for="nom">Nom:</label>
+        <input type="text" id="nom" name="titre">
+        <label for="titre">Titre:</label>
+        <input type="text" id="titre" name="titre">
+        <br>
+        <br>
+        <label for="description">Messages:</label>
+        <textarea name="description" id="description" cols="30" rows="10"></textarea>
+        <button type="submit" onclick=NouvMes()>Envoyer</button>
+        </form>
+    </div>
+  
+    
+    <div class="row">
+        <div class="col-sm" ><h3>Discussion</h3></div>
+        <div class="col-sm"><h3>Lancée par</h3></div>
+        <div class="col-sm"><h3>Derniere reponse</h3></div>
+        <div class="col-sm"><h3>Réponses</h3></div>
+    </div>
+    <div class="table">
+    </div>
     <script>
 
-
+function Initial(){
         fetch('http://127.0.0.1:8000/api/messages')
         .then(res => res.json())
         .then(data => {
             affichageDonnees(data);
             console.log(data)
         });
+    }
+    Initial()
         function affichageDonnees(data){
             let affiche="";
             //Back tick `
             for (i in data){
                 let compteurDeReponse=0;
-                DernierCommenteurs = data[i].commentaires.length - 1
-        affiche+=  
-                    `<tr id="${i}" class='primary'>`+
-                    `<td class="primary ${i}">${data[i].titre}</td>`+
-                    `<td class="primary ${i}">${data[i].auteur}</td>`+
-                    `<td class="primary ${i}">${data[i].commentaires[DernierCommenteurs].auteur}</td>`+
-                    `<td class="primary ${i}">${data[i].commentaires.length}</td>`+
-                    `</tr>`+
-                    `<tr class='info ${i}' style="display: none;">`+
-                        `<td colspan='2'>Discussion - par ${data[i].auteur} -- ${data[i].date.toLocaleString('en-US')}</td>`+
+                DernierCommenteurs = data[i].commentaires.length-1;
+                console.log(data[i].commentaires.length);
+                console.log(DernierCommenteurs);
+                let comAuteur
+                if(data[i].commentaires.length > 0){
+                    comAuteur=data[i].commentaires[DernierCommenteurs].auteur
+                }else{
+                    comAuteur=data[i].auteur
+                }
+        affiche+= 
+        //de base
+        `<div class="row tableau">`+
+        `<div class="col-sm"><h5>${data[i].titre}<h5></div>`+
+        `<div class="col-sm"><h5>${data[i].auteur}<h5></div>`+
+        `<div class="col-sm"><h5>${comAuteur}<h5></div>`+
+        `<div class="col-sm"><h5>${data[i].commentaires.length}<h5></div>`+
+      
+        //aprés clique
+        `<div class='sousTableau' class="row" >`+
+                        `<div class="col-sm">Discussion - par ${data[i].auteur} -- ${data[i].date}<button onClick=deleteMSG("${data[i]._id}")>Supprimer la discussion</button></div>`+
                         //toLocaleString marche pas
-                        `</tr>`+
-                        `<tr class='info ${i}' style="display: none;">`+
-                        `<td><h4>${data[i].titre}</h3></t4>`+
-                        `</tr>`+
-                        `<tr class='info ${i}' style="display: none;">`+
-                        `<td colspan='2'>${data[i].description}</td>`+
-                    `</tr>`
-                    
-                        //Discussion
-            data[i].commentaires.forEach(elem => {
-                let reponses;
+                        `<div class="col-sm"><h4>${data[i].titre}</h4></div>`+
+                        `<div class="col-sm">${data[i].description}</div>`+
+        `</div>`
+        
+        let reponses="";
+        data[i].commentaires.forEach(elem => {
                 compteurDeReponse ++;
-                console.log(elem.commentaires)
-                reponses +=
-                `<tr class='info ${i}' style="display: none;">`+
-                        `<td>Réponse ${compteurDeReponse} - ${elem.auteur} -- ${elem.date.toLocaleString('en-US')}</td>`+
-                        //toLocaleString marche pas
-                        `<td>${elem.auteur}</td>`+
-                        `</tr>`+
-                        `<tr class='info ${i}' style="display: none;">`+
-                        `<td colspan='2'>${elem.commentaire}</td>`+
-                    `</tr>`
-                    affiche+=reponses
-            }
-            
-            );
+                console.log(elem)
+             reponses +=
 
+              `<div class='sousTableau row'>`+
+                        `<div>Réponse ${compteurDeReponse} - ${elem.auteur} -- ${elem.date.toLocaleString('en-US')}</div>`+
+                        `<div>${elem.auteur}</div>`+
+                        `<div>${elem.commentaire}</div>`+
+                `</div>`
+                
+          }); 
+          reponses+=`<div class='sousTableau row'><label for="commentaire">Nouveau commentaire:</label>`+
+                        `<textarea type="text" name="commentaire" id="commentaire" style="height:100px" placeholder="Rentrer votre commentaire ici"></textarea>`+
+                        `<button onClick=nouvCom("${data[i]._id}")>Envoyer le commentaire</button></div>`
+          affiche+=reponses+ `</div>`
+          
+        }
+            $(".table").html(affiche);
+            $(".sousTableau").hide();
+            $(".tableau").click(function(){
+                $(this).children().show(1000)
+            });
+            $(".tableau").dblclick(function(){
+                $(".sousTableau").hide(1000)
+            });
             }
-            $(".tableBody").html(affiche);
-            $(".primary").click(function(event){
-                //je sais vraiment pas pourquoi moi toggle a un timer aulieux d'un temps de lancement
-                //jai essayer avec un document.ready sans succes
-                //je ne vois pas l'erreur pour que le toggle ne marche pas
-                //je n'arrive pas aussi a aller chercher telle class par rapport a celle que l'utilisateur a cliquer
-                //tu voit jai assigner un chiffre a chaque class pour ensuite ouvrir celle-ci si elle est cliqué mais jarrive pas a faire la logique
-                //$(this).attr('id').slideToggle("slow");
-                $('.info').slideToggle(2000);
-            })
+            $(".menuMSG").hide();
+            function deroule(){
+                $(".menuMSG").show(2000);
             }
+            function roule(){
+                $(".menuMSG").hide(2000);
+            }
+    
+    function deleteMSG(filtre){
+        let confirmation=confirm("Do you really want to delete this message")
+        if(confirmation)
+        fetch(`http://127.0.0.1:8000/api/messages/${filtre}`, {method: 'DELETE',})
+        .then(res => res.json())
+        .then(data => {
+            Initial()
+        });
+    }
+    function nouvCom(filtre){
+        $()
+        fetch(`http://127.0.0.1:8000/api/messages/${filtre}`, {method: 'PUT',})
+        .then(res => res.json())
+        .then(data => {
+            Initial()
+        });
+    }
+    const data = { titre, description, auteur }
+    function nouvMSG(){
+        fetch(`http://127.0.0.1:8000/api/messages`, {method: 'POST',
+        headers: {
+                    'Content-Type': 'application/json',
+                },
+                    body: JSON.stringify(data),
+                })
+        .then((response) => response.json())
+        .then(data => {
+            Initial()
+        })
+        .catch((error)=>{
+            console.error("ERROR: " , error);
+        })
+    }
+    
+
     </script>
 </body>
 </html>

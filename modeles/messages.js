@@ -2,13 +2,24 @@ const mongoose = require("mongoose");
 
 
 let msgData = mongoose.Schema({
-    _id: { type: String, required: false },
+    _id: { type: String, required: true },
     titre: { type: String, required: true },
     auteur: { type: String, required: true },
     description: { type: String, required: true },
-    langue: { type: String, required: false },
-    date: { type: String, required: false },
-    commentaire: { type: Array, required: false },
+    langue: { type: String, required: true, default: "francais" },
+    date: { type: Date,
+        required:false,
+        default:Date.now() },
+    commentaires: [{ 
+    auteur: { type: String,
+        default: 'Alain@Gmail.com',
+        required:false },
+    commentaire: { type: String,
+        required:true },
+    date: { type: Date,
+            required:false,
+            default:Date.now()}
+         }],
 });
 
 let Messages = (module.exports = mongoose.model("messages", msgData));
@@ -30,13 +41,13 @@ module.exports.rechercheMsg = (query, callback) => {
 
 module.exports.ajoutMsg = (query, callback) => {
     query._id = new mongoose.Types.ObjectId();
-    query.commentaire= [];
+    query.commentaires= Array;
     query.date=Date.now();
     Messages.create(query, callback);
 };
 
 module.exports.deleteMsg = (query, callback) => {
-    let filtre = { titre: query };
+    let filtre = { _id: query };
     Messages.deleteOne(filtre, callback);
 };
 
@@ -45,9 +56,13 @@ module.exports.modifierMsg = (query, newMsg, callback) => {
     let options = {};
     //pas de _id generer auto par mongo dans un update
     let nouveauMsg = {
+        _id:newMsg._id,
         titre: newMsg.titre,
         auteur: newMsg.auteur,
-        description: newMsg.description
+        description: newMsg.description,
+        date: newMsg.date,
+        langue: newMsg.langue,
+        commentaires: newMsg.commentaires
     };
     Usagers.findOneAndUpdate(filtre, nouveauMsg, options, callback);
 };

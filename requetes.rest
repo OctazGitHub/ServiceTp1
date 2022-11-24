@@ -12,16 +12,4 @@ PUT http://127.0.0.1:8000/api/messages/id
 DELETE http://127.0.0.1:8000/api/messages/id
 
 Content-Type:  application/json
-{
-  "_id": "666",
-  "Titre": "999 Mon beau livre",
-  "Auteur": "999 STEVE Caillou",
-  "Resume": "BLABLABLA Une journaliste avide d'une solide histoire pour réhabiliter sa carrière. Un assassin, interné pour aliénation mentale, qui a bien maquillé certains de ses crimes. Une ancienne épouse marquée à vie par la violence. Des rituels sataniques enterrés au coeur de la forêt. Une rencontre qui déchaîne un cycle de violence prévu depuis longtemps. Charles Perrault affirme, à la fin de Barbe Bleue, que la curiosité coûte souvent bien des regrets. La protagoniste de cette nouvelle mouture du fameux conte l'apprendra à ses dépens en se frottant au monstre qui la fascine...",
-  "Editeur": "KEKCHOSE",
-  "Page": 99777,
-  "Langue": "Français/French",
-  "Date": "2021-04-20",
-  "Prix": 9999.95,
-  "__v": 0
-}
 ###

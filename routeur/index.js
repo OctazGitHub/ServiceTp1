@@ -3,14 +3,59 @@ const router = express.Router();
 const Messages = require("../modeles/messages.js");
 
 
-router.get('/client_web2.html', (requete, reponse) => {
-  afficherPageWeb('client_web.html2', reponse);
-});
 
 
 router.get('/client_web.html', (requete, reponse) => {
   afficherPageWeb('client_web.html', reponse);
 });
+
+router.get('/ajouterDisc.html', (requete, reponse) => {
+  afficherPageWeb('ajouterDisc.html', reponse);
+});
+
+router.post('/ajouterDisc.html', (requete, reponse) => {
+    const mongoose= require('mongoose');
+    const { titre, description, auteur}=requete.body;
+    let erreurs = [];
+    
+    if(!titre || !description || !auteur ){
+      console.log('Champs incomplet');
+    }
+    if(erreurs.length > 0){
+      afficherPageWeb('ajouterDisc.html', {
+        titre, 
+        description,
+        auteur
+      });
+    }else{
+      // creation d'un _id
+      var _id = new mongoose.mongo.ObjectId();
+      //Ajout a la BD
+      Messages.findById(_id)
+      .then(messages => {
+          if(messages) {
+          console.log("Ce message existe deja");
+          afficherPageWeb('ajouterDisc.html', {
+            titre, 
+            description,
+            auteur
+             });
+          }else{
+              const newMessages= new Messages({_id ,titre ,description,auteur}); 
+                  newMessages.save()
+                  .then(message =>{
+                      afficherPageWeb('client_web.html',reponse);
+                  })
+                   .catch(err => console.log(err));
+              }})
+          }
+    });
+
+router.get('/suprimerDisc/:_id', (requete, reponse) => {
+      let filtre=requete.params._id
+      deleteMsg(filtre, reponse);
+});
+    
 
 function afficherPageWeb(filename, reponse){
   const fs= require('fs');
@@ -50,6 +95,8 @@ router.get("/api/messages/:titre", (requete, reponse) => {
     reponse.json(msg);
   });
 });
+
+
 router.post("/api/messages", (requete, reponse) => {
   let msg = requete.body;
   Messages.ajoutMsg(msg, (err, msg) => {
@@ -57,6 +104,8 @@ router.post("/api/messages", (requete, reponse) => {
     reponse.json(msg);
   });
 });
+
+
 router.delete("/api/messages/:titre", (requete, reponse) => {
   //requete a mongoDB pour supprimer un seul msg
   Messages.deleteMsg(requete.params.titre, (err, titre) => {
@@ -64,6 +113,7 @@ router.delete("/api/messages/:titre", (requete, reponse) => {
     reponse.json(titre);
   });
 });
+
 
 router.put("/api/messages/:titre", (requete, reponse) => {
   //requete a mongoDB pour modifier un seul msg
@@ -73,6 +123,8 @@ router.put("/api/messages/:titre", (requete, reponse) => {
     reponse.json(msg);
   });
 });
+
+
 router.get("/", (requete, response) => {
   response.send("Utilisez /api/messages pour faire un GET des messages");
 });
